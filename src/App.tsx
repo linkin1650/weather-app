@@ -17,7 +17,7 @@ export default function App() {
   const handleSearchClick = async () => {
     try {
       const response = await fetch(
-        `http://api.weatherapi.com/v1/forecast.json?key=57cf083f7dc842cfb8a155518241212&q=${query}&days=6&aqi=no&alerts=no`
+        `http://api.weatherapi.com/v1/forecast.json?key=${process.env.WEATHER_API_KEY}=${query}&days=6&aqi=no&alerts=no`
       );
 
       const data = await response.json();

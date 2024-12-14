@@ -11,7 +11,9 @@ import type { RootState } from "../store.ts";
 
 export default function SearchBar({ handleSearchClick }: SearchBarProps) {
   const query = useSelector((state: RootState) => state.query.value);
-  const suggestions = useSelector((state: RootState) => state.suggestions.value);
+  const suggestions = useSelector(
+    (state: RootState) => state.suggestions.value
+  );
   const dispatch = useDispatch();
   const debouncedQuery = useDebounce(query, 1000);
 
@@ -24,7 +26,7 @@ export default function SearchBar({ handleSearchClick }: SearchBarProps) {
 
       try {
         const response = await fetch(
-          `http://api.weatherapi.com/v1/search.json?key=57cf083f7dc842cfb8a155518241212&q=${debouncedQuery}`
+          `http://api.weatherapi.com/v1/search.json?key=${process.env.WEATHER_API_KEY}&q=${debouncedQuery}`
         );
         const data = await response.json();
         console.log("發送 api");
@@ -65,7 +67,7 @@ export default function SearchBar({ handleSearchClick }: SearchBarProps) {
           <SearchIcon />
         </Button>
         {/* 搜尋建議列表 */}
-        {(suggestions && suggestions.length > 0 ) && (
+        {suggestions && suggestions.length > 0 && (
           <ul className="absolute top-full w-full bg-white/90 text-black rounded-md shadow-md">
             {suggestions.map((suggestion, index) => (
               <li
