@@ -82,7 +82,7 @@ export default function App() {
           muted
           loop
         >
-          <source src="/public/night.mp4"></source>
+          <source src="/night.mp4"></source>
         </video>
       </div>
       <div className="flex flex-col w-full max-w-sm md:max-w-md lg:max-w-3xl">
