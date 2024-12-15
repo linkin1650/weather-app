@@ -23,7 +23,7 @@ export default function Board() {
 
   return (
     <div
-      className={`flex justify-center w-full h-auto px-8 mt-12 transition-opacity duration-1000 ease-in-out opacity-${visibled}`}
+      className={`flex justify-center w-full h-auto px-8 mt-6 transition-opacity duration-1000 ease-in-out opacity-${visibled}`}
     >
       <section className="flex flex-col lg:flex-row justify-between w-full h-full">
         {cityWeather ? (

@@ -6,7 +6,7 @@ export interface ProgressState {
 }
 
 const initialState: ProgressState = {
-  value: 13,
+  value: 0,
 };
 
 export const progressSlice = createSlice({

@@ -8,7 +8,8 @@ import progressReducer from "./features/progressSlice.ts";
 import visibledRuducer from "./features/visibledSlice.ts";
 import modalOpenReducer from "./features/modalOpenSlice.ts";
 import registerFormReducer from "./features/registerFormSlice.ts";
-import loginReducer from "./features/loginSlice.ts"
+import loginReducer from "./features/loginSlice.ts";
+import historyListReducer from "./features/historyListSlice.ts";
 
 export const store = configureStore({
   reducer: {
@@ -22,6 +23,7 @@ export const store = configureStore({
     modalOpen: modalOpenReducer,
     registerForm: registerFormReducer,
     login: loginReducer,
+    historyList: historyListReducer,
   },
 });
 
