@@ -12,8 +12,8 @@ export default function ForecastsWeather() {
   }
   
   return (
-    <div className="flex flex-col justify-between items-center w-full lg:w-2/6 h-full">
-      <p className="text-lg text-black font-bold">5 DAYS FORECASTS</p>
+    <div className="flex flex-col justify-between items-center w-full lg:w-2/6 h-full mt-6 lg:mt-0">
+      <p className="text-2xl text-white font-bold">5 DAYS FORECASTS</p>
       {cityWeather.forecast.forecastday.map((forecastDay: ForecastDay) => (
         <div
           key={forecastDay.date}

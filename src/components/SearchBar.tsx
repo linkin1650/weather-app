@@ -75,7 +75,7 @@ export default function SearchBar({ handleSearchClick }: SearchBarProps) {
   }, []);
 
   return (
-    <div className="relative z-10 flex justify-center w-full py-8">
+    <div className="relative z-10 flex justify-center w-full py-16 px-8 sm:py-8">
       <div
         className="relative flex w-full items-center bg-white/25 hover:bg-white/20 backdrop-blur-md border-0 rounded-md shadow-lg transition-all"
         ref={wrapperRef}

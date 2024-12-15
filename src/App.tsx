@@ -9,6 +9,7 @@ import { updateProgress } from "./features/progressSlice.ts";
 import { getCityWeather } from "./api/getData.ts";
 import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
+import LoginButton from "./components/LoginButton.tsx";
 
 export default function App() {
   const query = useSelector((state: RootState) => state.query.value);
@@ -85,9 +86,10 @@ export default function App() {
           <source src="/night.mp4"></source>
         </video>
       </div>
+      <LoginButton />
       <div className="flex flex-col w-full max-w-sm md:max-w-md lg:max-w-3xl">
         <SearchBar handleSearchClick={handleSearchClick} />
-        <div className={`flex justify-center items-center w-full h-1/2 ${loading ? "block" : "hidden"}`}>
+        <div className={`flex justify-center items-center w-full h-1/2 px-8 ${loading ? "block" : "hidden"}`}>
           <Progress
             value={progress}
             onComplete={() => {
