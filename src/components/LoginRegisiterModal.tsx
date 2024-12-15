@@ -2,7 +2,20 @@ import React from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import type { RootState } from "../store.ts";
 import { useSelector, useDispatch } from "react-redux";
+import { useToast } from "@/hooks/use-toast";
 import { updateRegisterForm } from "../features/registerFormSlice.ts";
+import { updateLogin } from "../features/loginSlice.ts";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
+import { initializeApp } from "firebase/app";
+import { firebaseConfig } from "../ultils/firebase.ts"
+
+initializeApp(firebaseConfig);
+const auth = getAuth();
+
 
 type FormValues = {
   email: string;
@@ -19,19 +32,54 @@ export const LoginRegisterModal: React.FC<ModalProps> = ({ onClose }) => {
     (state: RootState) => state.registerForm.value
   );
   const dispatch = useDispatch();
-
   const {
     register,
     handleSubmit,
     formState: { errors },
     watch,
   } = useForm<FormValues>();
-
+  const { toast } = useToast();
   const password = watch("password"); // 監視密碼欄位，以便確認密碼比對
 
-  const onSubmit: SubmitHandler<FormValues> = (data) => {
-    console.log(registerForm ? "register" : "login", data);
-    alert(`${registerForm ? "Registration successful" : "Login successful"}！`);
+  const onSubmit: SubmitHandler<FormValues> = async (data) => {
+    const { email, password } = data;
+
+    //用 registerFrom 狀態區分表格 onSubmit
+    if (registerForm) {
+      createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          const user = userCredential.user;
+          console.log(user);
+          toast({
+            description: "Signup successfully!",
+          });
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          toast({
+            description: `Whoops...something wrong!. errorcode: ${errorCode}, errormessage: ${errorMessage}`,
+          });
+        });
+    } else {
+      signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          const user = userCredential.user;
+          console.log(user);
+          dispatch(updateLogin(true))
+          toast({
+            description: "Login successfully!",
+          });
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          toast({
+            description: `Whoops...something wrong!. errorcode: ${errorCode}, errormessage: ${errorMessage}`,
+          });
+        });
+    }
+
     onClose();
   };
 
