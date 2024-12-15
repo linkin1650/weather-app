@@ -6,6 +6,9 @@ export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
+      transitionDuration: {
+        '6000': '6000ms',
+      },
       fontFamily: {
         sans: ["Roboto", "sans-serif"],
         roboto: ["Roboto", "sans-serif"],

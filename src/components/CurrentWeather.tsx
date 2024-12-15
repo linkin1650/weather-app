@@ -11,7 +11,7 @@ export default function CurrentWeather() {
   }
 
   return (
-    <div className="flex flex-col w-full lg:w-3/5 h-full justify-around items-center bg-white/25 hover:bg-white/20 backdrop-blur-md border-0 rounded-md shadow-lg transition-colors">
+    <div className={`flex flex-col w-full lg:w-3/5 h-full justify-around items-center bg-white/25 hover:bg-white/20 backdrop-blur-md border-0 rounded-md shadow-lg transition-colors`}>
       <p className="py-3 text-base font-sm">{cityWeather.location.localtime}</p>
       <div>
         <h2 className="text-center w-auto pb-5 px-6 text-5xl font-bold tracking-wide shrink">

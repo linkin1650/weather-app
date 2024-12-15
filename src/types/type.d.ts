@@ -31,3 +31,7 @@ export type ForecastDay = {
 export type SearchBarProps = {
   handleSearchClick: () => Promise<void>;
 };
+
+export type Suggestion = {
+  name: string;
+};

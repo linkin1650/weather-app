@@ -10,9 +10,7 @@ export default function ForecastsWeather() {
   if (!cityWeather) {
     return null;
   }
-
-  console.log(cityWeather.forecast);
-
+  
   return (
     <div className="flex flex-col justify-between items-center w-full lg:w-2/6 h-full">
       <p className="text-lg text-black font-bold">5 DAYS FORECASTS</p>
