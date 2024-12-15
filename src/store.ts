@@ -4,8 +4,10 @@ import cityWeatherReducer from "./features/cityWeatherSlice.ts";
 import suggestionsReducer from "./features/suggestionsSlice.ts";
 import selectedReducer from "./features/selectedSlice.ts";
 import loadingReducer from "./features/loadingSlice.ts";
-import progressReducer from "./features/progressSlice.ts"
-import visibledRuducer from "./features/visibledSlice.ts"
+import progressReducer from "./features/progressSlice.ts";
+import visibledRuducer from "./features/visibledSlice.ts";
+import modalOpenReducer from "./features/modalOpenSlice.ts";
+import registerFormReducer from "./features/registerFormSlice.ts";
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +18,8 @@ export const store = configureStore({
     loading: loadingReducer,
     progress: progressReducer,
     visibled: visibledRuducer,
+    modalOpen: modalOpenReducer,
+    registerForm: registerFormReducer,
   },
 });
 

@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-
+import type { RootState } from "../store.ts";
+import { useSelector, useDispatch } from "react-redux";
+import { updateRegisterForm } from "../features/registerFormSlice.ts";
 
 type FormValues = {
   email: string;
@@ -13,7 +15,11 @@ interface ModalProps {
 }
 
 export const LoginRegisterModal: React.FC<ModalProps> = ({ onClose }) => {
-  const [isRegister, setIsRegister] = useState(false); // 切換登入和註冊
+  const registerForm = useSelector(
+    (state: RootState) => state.registerForm.value
+  );
+  const dispatch = useDispatch();
+
   const {
     register,
     handleSubmit,
@@ -24,8 +30,8 @@ export const LoginRegisterModal: React.FC<ModalProps> = ({ onClose }) => {
   const password = watch("password"); // 監視密碼欄位，以便確認密碼比對
 
   const onSubmit: SubmitHandler<FormValues> = (data) => {
-    console.log(isRegister ? "register" : "login", data);
-    alert(`${isRegister ? "Registration successful" : "Login successful"}！`);
+    console.log(registerForm ? "register" : "login", data);
+    alert(`${registerForm ? "Registration successful" : "Login successful"}！`);
     onClose();
   };
 
@@ -33,7 +39,7 @@ export const LoginRegisterModal: React.FC<ModalProps> = ({ onClose }) => {
     <div className="fixed inset-0 flex items-center justify-center bg-white/25 backdrop-blur-sm z-50">
       <div className="bg-white/60 p-6 mx-8 rounded-lg shadow-lg w-72 lg:w-96 h-auto">
         <h2 className="text-xl font-bold text-center mb-4">
-          {isRegister ? "Sign up" : "Sign in"}
+          {registerForm ? "Sign up" : "Sign in"}
         </h2>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -67,7 +73,7 @@ export const LoginRegisterModal: React.FC<ModalProps> = ({ onClose }) => {
             )}
           </div>
 
-          {isRegister && (
+          {registerForm && (
             <div>
               <label className="block text-sm font-medium text-gray-700">
                 Confirm Password
@@ -94,17 +100,17 @@ export const LoginRegisterModal: React.FC<ModalProps> = ({ onClose }) => {
             type="submit"
             className="w-full text-white py-2 rounded-md bg-gray-900 hover:bg-gray-800 transition"
           >
-            {isRegister ? "Sign up" : "Sign in"}
+            {registerForm ? "Sign up" : "Sign in"}
           </button>
         </form>
 
         <p className="text-sm text-center mt-4">
-          {isRegister ? "Already have an account?" : "Don't have an account?"}
+          {registerForm ? "Already have an account?" : "Don't have an account?"}
           <button
-            onClick={() => setIsRegister(!isRegister)}
+            onClick={() => dispatch(updateRegisterForm(!registerForm))}
             className="text-gray-900 hover:text-gray-600 ml-1"
           >
-            {isRegister ? "Sign in" : "Sign up"}
+            {registerForm ? "Sign in" : "Sign up"}
           </button>
         </p>
 
