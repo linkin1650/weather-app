@@ -98,18 +98,18 @@ export default function LoginButton() {
       {login ? (
         <button
           onClick={() => handleLogout()}
-          className="absolute z-30 top-4 sm:top-8 sm:right-4 px-2 py-1 text-white rounded-sm bg-gray-900 hover:bg-gray-700"
+          className="flex absolute z-30 top-4 sm:top-8 sm:right-4 px-2 py-1 text-white rounded-sm bg-gray-900 hover:bg-gray-700"
         >
-          <UserIcon className="lg:hidden" />
-          <span className="hidden lg:block">Sign out</span>
+          <UserIcon className="lg:hidden mr-2" />
+          <span className="sm:hidden lg:block">Sign out</span>
         </button>
       ) : (
         <button
           onClick={() => dispatch(updateModalOpen(true))}
-          className="absolute z-30 top-4 sm:top-8 sm:right-4 px-2 py-1 text-white rounded-sm bg-white/25 hover:bg-white/20 "
+          className="flex absolute z-30 top-4 sm:top-8 sm:right-4 px-2 py-1 text-white rounded-sm bg-white/25 hover:bg-white/20 "
         >
-          <UserIcon className="lg:hidden" />
-          <span className="hidden lg:block">Sign in / Sign up</span>
+          <UserIcon className="lg:hidden mr-2" />
+          <span className="sm:hidden lg:block">Sign in / Sign up</span>
         </button>
       )}
       {/* 根據 modalOpen 渲染登入 modal */}
