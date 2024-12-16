@@ -1,5 +1,6 @@
 import { LoginRegisterModal } from "./LoginRegisiterModal.tsx";
 import UserIcon from "/public/user.svg?react";
+import LogoutIcon from "/public/logout.svg?react";
 import { useToast } from "@/hooks/use-toast";
 import type { RootState } from "../store.ts";
 import { useSelector, useDispatch } from "react-redux";
@@ -100,7 +101,7 @@ export default function LoginButton() {
           onClick={() => handleLogout()}
           className="flex absolute z-30 top-4 sm:top-8 sm:right-4 px-2 py-1 text-white rounded-sm bg-gray-900 hover:bg-gray-700"
         >
-          <UserIcon className="lg:hidden mr-2" />
+          <LogoutIcon className="lg:hidden mr-2" />
           <span className="sm:hidden lg:block">Sign out</span>
         </button>
       ) : (
