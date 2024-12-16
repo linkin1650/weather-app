@@ -5,9 +5,11 @@ import type { RootState } from "../store.ts";
 import { useSelector, useDispatch } from "react-redux";
 import { updateModalOpen } from "../features/modalOpenSlice.ts";
 import { updateLogin } from "../features/loginSlice.ts";
-import { getAuth, signOut } from "firebase/auth";
+import { updateHistoryList } from "../features/historyListSlice.ts";
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { initializeApp } from "firebase/app";
 import { firebaseConfig } from "../ultils/firebase.ts";
+import { useEffect } from "react";
 
 initializeApp(firebaseConfig);
 const auth = getAuth();
@@ -18,10 +20,14 @@ export default function LoginButton() {
   const dispatch = useDispatch();
   const { toast } = useToast();
 
+  //處理登出
   const handleLogout = () => {
     signOut(auth)
       .then(() => {
+        localStorage.removeItem("token");
         dispatch(updateLogin(false));
+        //清空歷史紀錄欄位
+        dispatch(updateHistoryList([]));
         toast({
           description: "Signout successfully!",
         });
@@ -35,8 +41,60 @@ export default function LoginButton() {
       });
   };
 
+  //處理確認目前 localStorage 是否有登入憑證，避免重新整理時需要重新登入
+  useEffect(() => {
+    // 檢查用戶的登入狀態
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          // 獲取並驗證 Token
+          const idToken = await user.getIdToken();
+          // 儲存 Token 到 localStorage
+          localStorage.setItem("token", idToken);
+
+          // 更新應用登入狀態
+          dispatch(updateLogin(true));
+        } catch (error) {
+          console.error("Failed to refresh token:", error);
+          // 如果有錯誤，登出用戶
+          signOut(auth)
+            .then(() => {
+              localStorage.removeItem("token");
+              dispatch(updateLogin(false));
+              dispatch(updateHistoryList([]));
+            })
+            .catch((error) => {
+              const errorCode = error.code;
+              const errorMessage = error.message;
+              toast({
+                description: `Whoops...something wrong!. errorcode: ${errorCode}, errormessage: ${errorMessage}`,
+              });
+            });
+        }
+      } else {
+        // 如果有錯誤，登出用戶
+        signOut(auth)
+          .then(() => {
+            localStorage.removeItem("token");
+            dispatch(updateLogin(false));
+            dispatch(updateHistoryList([]));
+          })
+          .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            toast({
+              description: `Whoops...something wrong!. errorcode: ${errorCode}, errormessage: ${errorMessage}`,
+            });
+          });
+      }
+    });
+
+    return () => unsubscribe(); // 清理監聽器
+  }, [auth]);
+
   return (
     <>
+      {/* 根據 login 狀態渲染登出或登入 button */}
       {login ? (
         <button
           onClick={() => handleLogout()}
@@ -54,6 +112,7 @@ export default function LoginButton() {
           <span className="hidden lg:block">Sign in / Sign up</span>
         </button>
       )}
+      {/* 根據 modalOpen 渲染登入 modal */}
       {modalOpen && (
         <LoginRegisterModal onClose={() => dispatch(updateModalOpen(false))} />
       )}

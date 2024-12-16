@@ -6,12 +6,15 @@ export default function CurrentWeather() {
     (state: RootState) => state.cityWeather.value
   );
 
+  // 若 cityWeather 沒有資料則返回空值
   if (!cityWeather) {
     return null;
   }
 
   return (
-    <div className={`flex flex-col w-full lg:w-3/5 h-full justify-around items-center bg-white/25 hover:bg-white/20 backdrop-blur-md border-0 rounded-md shadow-lg transition-colors`}>
+    <div
+      className={`flex flex-col justify-around items-center w-full lg:w-3/5 h-full bg-white/25 hover:bg-white/20 backdrop-blur-md border-0 rounded-md shadow-lg transition-colors`}
+    >
       <p className="py-3 text-base font-sm">{cityWeather.location.localtime}</p>
       <div>
         <h2 className="text-center w-auto pb-5 px-6 text-5xl font-bold tracking-wide shrink">
@@ -27,7 +30,9 @@ export default function CurrentWeather() {
         <p className="text-base mt-2">{cityWeather.current.condition.text}</p>
       </div>
       <div className="flex flex-col items-center my-5">
-        <p className="text-6xl font-bold">{cityWeather.current.temp_c} &#8451;</p>
+        <p className="text-6xl font-bold">
+          {cityWeather.current.temp_c} &#8451;
+        </p>
       </div>
     </div>
   );

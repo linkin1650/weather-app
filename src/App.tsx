@@ -16,6 +16,7 @@ import { firebaseConfig } from "./ultils/firebase.ts";
 import { updateHistory } from "./api/getFirebaseData.ts";
 import { HistoryList } from "./components/HistoryList.tsx";
 
+//初始化 firebase
 initializeApp(firebaseConfig);
 const auth = getAuth();
 
@@ -26,6 +27,7 @@ export default function App() {
   const dispatch = useDispatch();
   const { toast } = useToast();
 
+  //處理搜尋按鈕被點擊
   const handleSearchClick = async () => {
     //若 query 為空，不執行後續動作
     if (!query) {
@@ -79,16 +81,18 @@ export default function App() {
         updateHistory(user.uid, data.location.name);
       }
 
+      //將 Progress 改成 100，完成進度條動畫
       dispatch(updateProgress(100));
     } catch (error) {
       //找不到城市資料時顯示
       toast({
-        description: "Whoops: can't find the city, please try again",
+        description: `Whoops: can't find the city, please try again! ${error}`,
       });
+      //退出 loading 狀態
       dispatch(updateLoading(false));
-      console.error(error);
     }
   };
+
 
   return (
     <main className="relative flex justify-center h-screen">
@@ -119,7 +123,8 @@ export default function App() {
             }}
           />
         </div>
-        {!loading && <Board />}
+        {/* 非 loading 狀態時渲染 Board */}
+        {!loading && <Board />} 
       </div>
     </main>
   );

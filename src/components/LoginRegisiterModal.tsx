@@ -76,8 +76,12 @@ export const LoginRegisterModal: React.FC<ModalProps> = ({ onClose }) => {
       createUserWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
           const user = userCredential.user;
+          // 將 uid 和 email 存進 database
           setUserData(user.uid, email);
-          console.log(user);
+          // 將 token 存進 localstorage
+          user.getIdToken().then((idToken) => {
+            localStorage.setItem("token", idToken);
+          });
           dispatch(updateLogin(true));
           toast({
             description: "Signup successfully!",
@@ -113,7 +117,7 @@ export const LoginRegisterModal: React.FC<ModalProps> = ({ onClose }) => {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-white/25 backdrop-blur-sm z-50">
-      <div className="bg-white/60 p-6 mx-8 rounded-lg shadow-lg w-72 lg:w-96 h-auto">
+      <div className="w-72 lg:w-96 h-auto p-6 mx-8 bg-white/60 rounded-lg shadow-lg">
         <h2 className="text-xl font-bold text-center mb-4">
           {registerForm ? "Sign up" : "Sign in"}
         </h2>
@@ -126,7 +130,7 @@ export const LoginRegisterModal: React.FC<ModalProps> = ({ onClose }) => {
             <input
               type="email"
               {...register("email", { required: "please enter email" })}
-              className="mt-1 block w-full p-2 border rounded-md"
+              className="block w-full p-2 mt-1 border rounded-md"
               placeholder="example@email.com"
             />
             {errors.email && (
@@ -141,7 +145,7 @@ export const LoginRegisterModal: React.FC<ModalProps> = ({ onClose }) => {
             <input
               type="password"
               {...register("password", { required: "Please enter password" })}
-              className="mt-1 block w-full p-2 border rounded-md"
+              className="block w-full p-2 mt-1 border rounded-md"
               placeholder="••••••••"
             />
             {errors.password && (
@@ -158,10 +162,11 @@ export const LoginRegisterModal: React.FC<ModalProps> = ({ onClose }) => {
                 type="password"
                 {...register("confirmPassword", {
                   required: "Please confirm your password",
+                  // 驗證密碼一致性
                   validate: (value) =>
-                    value === password || "The passwords do not match", // 驗證密碼一致性
+                    value === password || "The passwords do not match",
                 })}
-                className="mt-1 block w-full p-2 border rounded-md"
+                className="block w-full p-2 mt-1 border rounded-md"
                 placeholder="••••••••"
               />
               {errors.confirmPassword && (

@@ -21,8 +21,9 @@ export default function SearchBar({ handleSearchClick }: SearchBarProps) {
   const dispatch = useDispatch();
   const debouncedQuery = useDebounce(query, 300);
 
-  const wrapperRef = useRef<HTMLDivElement>(null); // 追踪搜索框和建议列表的容器
+  const wrapperRef = useRef<HTMLDivElement>(null); //追蹤搜索框區域
 
+  //使用 useEffect 依賴 debouncedQuery，若有改變則重新調用 api 查找建議
   useEffect(() => {
     const fetchSuggestions = async () => {
       //若使用者點選建議列表項目後，避免再次調用模糊搜尋 api

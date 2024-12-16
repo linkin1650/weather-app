@@ -7,13 +7,14 @@ export default function ForecastsWeather() {
     (state: RootState) => state.cityWeather.value
   );
 
+  // 若 cityWeather 沒有資料則返回空值
   if (!cityWeather) {
     return null;
   }
-  
+
   return (
     <div className="flex flex-col justify-between items-center w-full lg:w-2/6 h-full mt-6 lg:mt-0">
-      <p className="text-2xl text-white font-bold">5 DAYS FORECASTS</p>
+      <p className="text-2xl font-bold text-white ">5 DAYS FORECASTS</p>
       {cityWeather.forecast.forecastday.map((forecastDay: ForecastDay) => (
         <div
           key={forecastDay.date}

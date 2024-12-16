@@ -2,7 +2,7 @@ import { initializeApp } from "firebase/app";
 import { firebaseConfig } from "../ultils/firebase.ts";
 import { getDatabase, ref, set, push, child, get } from "firebase/database";
 
-// 使用者的資料結構型別
+// 使用者的資料型別
 interface User {
   email: string | null;
   history: string[]; // history 是一個包含 string 的陣列
