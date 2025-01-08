@@ -62,7 +62,7 @@ export function HistoryList() {
           console.error("Failed to fetch history:", error);
         });
     }
-  }, [loading]);
+  }, [user, loading]);
 
   return (
     <div className="flex flex-wrap w-full h-auto px-8">
