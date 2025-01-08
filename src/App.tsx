@@ -93,7 +93,6 @@ export default function App() {
     }
   };
 
-
   return (
     <main className="relative flex justify-center h-screen">
       <div className="absolute top-0 left-0 -z-50 w-full h-full overflow-hidden">
@@ -102,6 +101,7 @@ export default function App() {
           autoPlay
           muted
           loop
+          preload="auto"
         >
           <source src="/night.mp4"></source>
         </video>
@@ -124,7 +124,7 @@ export default function App() {
           />
         </div>
         {/* 非 loading 狀態時渲染 Board */}
-        {!loading && <Board />} 
+        {!loading && <Board />}
       </div>
     </main>
   );
