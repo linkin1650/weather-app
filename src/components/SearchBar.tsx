@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-import SearchIcon from "/public/search.svg?react";
+import SearchIcon from "../assets/search.svg?react";
 import { useEffect, useRef } from "react";
 import useDebounce from "@/hooks/useDebounce";
 import { SearchBarProps } from "../types/type";

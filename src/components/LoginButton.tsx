@@ -1,6 +1,6 @@
 import { LoginRegisterModal } from "./LoginRegisiterModal.tsx";
-import UserIcon from "/public/user.svg?react";
-import LogoutIcon from "/public/logout.svg?react";
+import UserIcon from "../assets/user.svg?react";
+import LogoutIcon from "../assets/logout.svg?react";
 import { useToast } from "@/hooks/use-toast";
 import type { RootState } from "../store.ts";
 import { useSelector, useDispatch } from "react-redux";
