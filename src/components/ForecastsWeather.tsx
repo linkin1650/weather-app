@@ -27,7 +27,7 @@ export default function ForecastsWeather() {
             className="w-6 h-6"
           ></img>
           <p className="text-center w-2/5">
-            {forecastDay.day.mintemp_c} - {forecastDay.day.maxtemp_c} &#8451;
+            {forecastDay.day.mintemp_c} ~ {forecastDay.day.maxtemp_c} &#8451;
           </p>
         </div>
       ))}
