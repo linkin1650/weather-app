@@ -1,5 +1,5 @@
-import Board from "./components/Board";
-import SearchBar from "./components/SearchBar";
+import Board from "./components/Board.tsx";
+import SearchBar from "./components/SearchBar.tsx";
 import { ForecastDay } from "./types/type";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "./store.ts";
@@ -7,7 +7,7 @@ import { updateCityWeather } from "./features/cityWeatherSlice.ts";
 import { updateLoading } from "./features/loadingSlice.ts";
 import { updateProgress } from "./features/progressSlice.ts";
 import { getCityWeather } from "./api/getData.ts";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/useToast.ts";
 import { Progress } from "@/components/ui/progress";
 import LoginButton from "./components/LoginButton.tsx";
 import { getAuth } from "firebase/auth";

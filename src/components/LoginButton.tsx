@@ -1,7 +1,7 @@
 import { LoginRegisterModal } from "./LoginRegisiterModal.tsx";
 import UserIcon from "../assets/user.svg?react";
 import LogoutIcon from "../assets/logout.svg?react";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/useToast.ts";
 import type { RootState } from "../store.ts";
 import { useSelector, useDispatch } from "react-redux";
 import { updateModalOpen } from "../features/modalOpenSlice.ts";

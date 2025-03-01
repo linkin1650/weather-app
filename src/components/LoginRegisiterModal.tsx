@@ -3,7 +3,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import type { RootState } from "../store.ts";
 import { useSelector, useDispatch } from "react-redux";
 import GoogleIcon from "../assets/google.svg?react";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/useToast.ts";
 import { updateRegisterForm } from "../features/registerFormSlice.ts";
 import { updateLogin } from "../features/loginSlice.ts";
 import {
