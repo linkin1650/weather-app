@@ -9,7 +9,7 @@ import { updateLogin } from "../features/loginSlice.ts";
 import { updateHistoryList } from "../features/historyListSlice.ts";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { initializeApp } from "firebase/app";
-import { firebaseConfig } from "../ultils/firebase.ts";
+import { firebaseConfig } from "../utils/firebase.ts";
 import { useEffect } from "react";
 
 initializeApp(firebaseConfig);

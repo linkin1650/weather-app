@@ -8,10 +8,9 @@ import { useSelector, useDispatch } from "react-redux";
 import { updateQuery } from "../features/querySlice.ts";
 import type { RootState } from "../store.ts";
 import { updateLoading } from "@/features/loadingSlice.ts";
-import { updateProgress } from "@/features/progressSlice.ts";
 import { updateCityWeather } from "@/features/cityWeatherSlice.ts";
 import { updateHistory } from "@/api/getFirebaseData.ts";
-import { auth } from "@/ultils/firebase.ts";
+import { auth } from "@/utils/firebase.ts";
 import useSWRMutation from "swr/mutation";
 import { toast } from "@/hooks/useToast.ts";
 import useSWR from "swr";
@@ -31,7 +30,15 @@ export default function SearchBar() {
 
   const { weatherFetcher } = useWeather();
   const { suggestionsFetcher } = useSuggestions();
-  const { trigger } = useSWRMutation('weather', weatherFetcher)
+  const { trigger, isMutating } = useSWRMutation('weather', weatherFetcher)
+
+  useEffect(() => {
+    if (isMutating) {
+      dispatch(updateLoading(true));
+    } else {
+      dispatch(updateLoading(false));
+    }
+  }, [isMutating, dispatch]);
 
   //處理搜尋按鈕被點擊
   const handleSearchClick = async () => {
@@ -40,10 +47,7 @@ export default function SearchBar() {
       return;
     }
 
-    try {
-      dispatch(updateLoading(true));
-      dispatch(updateProgress(0));
-      
+    try {      
       const result = await trigger(query);
       
       if (result) {
@@ -85,15 +89,11 @@ export default function SearchBar() {
           updateHistory(user.uid, result.location.name);
         }
       }
-      
-      dispatch(updateProgress(100));
     } catch (e) {
       toast({
         description: `Whoops: can't find the city, please try again!`,
       });
       console.error(e)
-    } finally {
-      dispatch(updateLoading(false));
     }
   };
 

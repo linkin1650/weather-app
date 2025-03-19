@@ -3,7 +3,7 @@ import { updateQuery } from "../features/querySlice.ts";
 import { updateHistoryList } from "../features/historyListSlice.ts";
 import { getAuth } from "firebase/auth";
 import { initializeApp } from "firebase/app";
-import { firebaseConfig } from "../ultils/firebase.ts";
+import { firebaseConfig } from "../utils/firebase.ts";
 import { getHistory } from "@/api/getFirebaseData.ts";
 import { RootState } from "@/store.ts";
 import { useEffect } from "react";

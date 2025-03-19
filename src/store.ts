@@ -4,8 +4,7 @@ import cityWeatherReducer from "./features/cityWeatherSlice.ts";
 import suggestionsReducer from "./features/suggestionsSlice.ts";
 import selectedReducer from "./features/selectedSlice.ts";
 import loadingReducer from "./features/loadingSlice.ts";
-import progressReducer from "./features/progressSlice.ts";
-import visibleRuducer from "./features/visibleSlice.ts";
+import visibleReducer from "./features/visibleSlice.ts";
 import modalOpenReducer from "./features/modalOpenSlice.ts";
 import registerFormReducer from "./features/registerFormSlice.ts";
 import loginReducer from "./features/loginSlice.ts";
@@ -18,8 +17,7 @@ export const store = configureStore({
     suggestions: suggestionsReducer,
     selected: selectedReducer,
     loading: loadingReducer,
-    progress: progressReducer,
-    visible: visibleRuducer,
+    visible: visibleReducer,
     modalOpen: modalOpenReducer,
     registerForm: registerFormReducer,
     login: loginReducer,

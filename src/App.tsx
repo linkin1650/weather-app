@@ -1,22 +1,18 @@
 import Board from "./components/Board.tsx";
 import SearchBar from "./components/SearchBar.tsx";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import type { RootState } from "./store.ts";
-import { updateLoading } from "./features/loadingSlice.ts";
-import { updateProgress } from "./features/progressSlice.ts";
-import { Progress } from "@/components/ui/progress";
 import LoginButton from "./components/LoginButton.tsx";
 import { initializeApp } from "firebase/app";
-import { firebaseConfig } from "./ultils/firebase.ts";
+import { firebaseConfig } from "./utils/firebase.ts";
 import { HistoryList } from "./components/HistoryList.tsx";
+import { Spinner } from "@/components/ui/spinner";
 
 //初始化 firebase
 initializeApp(firebaseConfig);
 
 export default function App() {
   const loading = useSelector((state: RootState) => state.loading.value);
-  const progress = useSelector((state: RootState) => state.progress.value);
-  const dispatch = useDispatch();
 
   return (
     <main className="relative flex justify-center h-screen">
@@ -40,13 +36,9 @@ export default function App() {
             loading ? "block" : "hidden"
           }`}
         >
-          <Progress
-            value={progress}
-            onComplete={() => {
-              dispatch(updateLoading(false)); // 動畫完成後切換 loading 狀態
-              dispatch(updateProgress(0)); // 重置進度條
-            }}
-          />
+          <Spinner className="text-white" size="large">
+            <span className="text-white">Loading...</span>
+          </Spinner>
         </div>
         {/* 非 loading 狀態時渲染 Board */}
         {!loading && <Board />}
