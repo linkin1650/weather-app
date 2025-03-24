@@ -1,5 +1,5 @@
 import React from "react";
-import { useForm, FieldErrors } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import type { RootState } from "../store.ts";
@@ -55,7 +55,6 @@ const registerSchema = loginSchema.extend({
       return false;
     }
     
-    
     // 檢查是否是一個合理的日期（例如：不是 13 月 32 日）
     const inputMonth = parsedDate.getMonth();
     const inputDate = parsedDate.getDate();
@@ -75,6 +74,7 @@ const registerSchema = loginSchema.extend({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 type RegisterFormValues = z.infer<typeof registerSchema>;
+type FormValues = LoginFormValues & Partial<Omit<RegisterFormValues, keyof LoginFormValues>>;
 
 interface ModalProps {
   onClose: () => void;
@@ -89,13 +89,20 @@ export const LoginRegisterModal: React.FC<ModalProps> = ({ onClose }) => {
   const provider = new GoogleAuthProvider();
 
   const {
-    register,
+    control,
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-  } = useForm<LoginFormValues | RegisterFormValues>({
+  } = useForm<FormValues>({
     resolver: zodResolver(registerForm ? registerSchema : loginSchema),
-    mode: "onBlur"
+    mode: "onBlur",
+    defaultValues: {
+      email: "",
+      password: "",
+      name: "",
+      birthday: "",
+      confirmPassword: "",
+    }
   });
 
   //firebase google 登入功能
@@ -117,7 +124,7 @@ export const LoginRegisterModal: React.FC<ModalProps> = ({ onClose }) => {
     }
   };
 
-  const onSubmit = async (data: LoginFormValues | RegisterFormValues) => {
+  const onSubmit = async (data: FormValues) => {
     try {
       if (registerForm) {
         const userCredential = await createUserWithEmailAndPassword(
@@ -140,6 +147,7 @@ export const LoginRegisterModal: React.FC<ModalProps> = ({ onClose }) => {
           description: "登入成功！",
         });
       }
+      console.log(data);
       reset();
       onClose();
     } catch (error) {
@@ -149,6 +157,9 @@ export const LoginRegisterModal: React.FC<ModalProps> = ({ onClose }) => {
       });
     }
   };
+
+  // 輸入欄位的通用樣式
+  const inputClassName = "block w-full p-2 mt-1 border rounded-md";
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-white/25 backdrop-blur-sm z-50">
@@ -163,14 +174,20 @@ export const LoginRegisterModal: React.FC<ModalProps> = ({ onClose }) => {
               <label className="block text-sm font-medium text-gray-700">
                 姓名
               </label>
-              <input
-                type="text"
-                {...register("name")}
-                className="block w-full p-2 mt-1 border rounded-md"
-                placeholder="請輸入姓名"
+              <Controller
+                name="name"
+                control={control}
+                render={({ field }) => (
+                  <input
+                    type="text"
+                    {...field}
+                    className={inputClassName}
+                    placeholder="請輸入姓名"
+                  />
+                )}
               />
-              {(errors as FieldErrors<RegisterFormValues>).name && (
-                <p className="text-red-500 text-sm">{(errors as FieldErrors<RegisterFormValues>).name?.message}</p>
+              {errors.name && (
+                <p className="text-red-500 text-sm">{errors.name.message}</p>
               )}
             </div>
           )}
@@ -180,16 +197,22 @@ export const LoginRegisterModal: React.FC<ModalProps> = ({ onClose }) => {
               <label className="block text-sm font-medium text-gray-700">
                 生日
               </label>
-              <input
-                type="date"
-                {...register("birthday")}
-                className="block w-full p-2 mt-1 border rounded-md"
-                max={new Date().toISOString().split('T')[0]} // 限制最大日期為今天
-                min="1900-01-01" // 限制最小年份
-                pattern="\d{4}-\d{2}-\d{2}" // 使用 YYYY-MM-DD 格式
+              <Controller
+                name="birthday"
+                control={control}
+                render={({ field }) => (
+                  <input
+                    type="date"
+                    {...field}
+                    className={inputClassName}
+                    max={new Date().toISOString().split('T')[0]} // 限制最大日期為今天
+                    min="1900-01-01" // 限制最小年份
+                    pattern="\d{4}-\d{2}-\d{2}" // 使用 YYYY-MM-DD 格式
+                  />
+                )}
               />
-              {(errors as FieldErrors<RegisterFormValues>).birthday && (
-                <p className="text-red-500 text-sm">{(errors as FieldErrors<RegisterFormValues>).birthday?.message}</p>
+              {errors.birthday && (
+                <p className="text-red-500 text-sm">{errors.birthday.message}</p>
               )}
             </div>
           )}
@@ -198,11 +221,17 @@ export const LoginRegisterModal: React.FC<ModalProps> = ({ onClose }) => {
             <label className="block text-sm font-medium text-gray-700">
               電子郵件
             </label>
-            <input
-              type="email"
-              {...register("email")}
-              className="block w-full p-2 mt-1 border rounded-md"
-              placeholder="example@email.com"
+            <Controller
+              name="email"
+              control={control}
+              render={({ field }) => (
+                <input
+                  type="email"
+                  {...field}
+                  className={inputClassName}
+                  placeholder="example@email.com"
+                />
+              )}
             />
             {errors.email && (
               <p className="text-red-500 text-sm">{errors.email.message}</p>
@@ -213,11 +242,17 @@ export const LoginRegisterModal: React.FC<ModalProps> = ({ onClose }) => {
             <label className="block text-sm font-medium text-gray-700">
               密碼
             </label>
-            <input
-              type="password"
-              {...register("password")}
-              className="block w-full p-2 mt-1 border rounded-md"
-              placeholder="••••••••"
+            <Controller
+              name="password"
+              control={control}
+              render={({ field }) => (
+                <input
+                  type="password"
+                  {...field}
+                  className={inputClassName}
+                  placeholder="••••••••"
+                />
+              )}
             />
             {errors.password && (
               <p className="text-red-500 text-sm">{errors.password.message}</p>
@@ -229,15 +264,21 @@ export const LoginRegisterModal: React.FC<ModalProps> = ({ onClose }) => {
               <label className="block text-sm font-medium text-gray-700">
                 確認密碼
               </label>
-              <input
-                type="password"
-                {...register("confirmPassword")}
-                className="block w-full p-2 mt-1 border rounded-md"
-                placeholder="••••••••"
+              <Controller
+                name="confirmPassword"
+                control={control}
+                render={({ field }) => (
+                  <input
+                    type="password"
+                    {...field}
+                    className={inputClassName}
+                    placeholder="••••••••"
+                  />
+                )}
               />
-              {(errors as FieldErrors<RegisterFormValues>).confirmPassword && (
+              {errors.confirmPassword && (
                 <p className="text-red-500 text-sm">
-                  {(errors as FieldErrors<RegisterFormValues>).confirmPassword?.message}
+                  {errors.confirmPassword.message}
                 </p>
               )}
             </div>
