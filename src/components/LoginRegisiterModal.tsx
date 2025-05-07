@@ -9,18 +9,13 @@ import { useToast } from "@/hooks/useToast.ts";
 import { updateRegisterForm } from "../features/registerFormSlice.ts";
 import { updateLogin } from "../features/loginSlice.ts";
 import {
-  getAuth,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup,
 } from "firebase/auth";
-import { initializeApp } from "firebase/app";
-import { firebaseConfig } from "../utils/firebase.ts";
 import { setUserData } from "@/api/getFirebaseData.ts";
-
-initializeApp(firebaseConfig);
-const auth = getAuth();
+import { auth } from "../utils/firebase.ts";
 
 // 表單驗證 schema
 const loginSchema = z.object({

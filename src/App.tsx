@@ -3,13 +3,8 @@ import SearchBar from "./components/SearchBar.tsx";
 import { useSelector } from "react-redux";
 import type { RootState } from "./store.ts";
 import LoginButton from "./components/LoginButton.tsx";
-import { initializeApp } from "firebase/app";
-import { firebaseConfig } from "./utils/firebase.ts";
 import { HistoryList } from "./components/HistoryList.tsx";
 import { Spinner } from "@/components/ui/spinner";
-
-//初始化 firebase
-initializeApp(firebaseConfig);
 
 export default function App() {
   const loading = useSelector((state: RootState) => state.loading.value);

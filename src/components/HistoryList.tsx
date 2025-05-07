@@ -1,15 +1,11 @@
 import { useSelector, useDispatch } from "react-redux";
 import { updateQuery } from "../features/querySlice.ts";
 import { updateHistoryList } from "../features/historyListSlice.ts";
-import { getAuth } from "firebase/auth";
-import { initializeApp } from "firebase/app";
-import { firebaseConfig } from "../utils/firebase.ts";
 import { getHistory } from "@/api/getFirebaseData.ts";
 import { RootState } from "@/store.ts";
 import { useEffect } from "react";
+import { auth } from "../utils/firebase";
 
-initializeApp(firebaseConfig);
-const auth = getAuth();
 
 export function HistoryList() {
   const historyList = useSelector(
@@ -62,7 +58,7 @@ export function HistoryList() {
           console.error("Failed to fetch history:", error);
         });
     }
-  }, [user, loading]);
+  }, [user, loading, login, dispatch]);
 
   return (
     <div className="flex flex-wrap w-full h-auto px-8">
