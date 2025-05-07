@@ -1,5 +1,3 @@
-import { initializeApp } from "firebase/app";
-import { firebaseConfig } from "../ultils/firebase.ts";
 import {
   getDatabase,
   ref,
@@ -15,8 +13,6 @@ interface User {
   email: string | null;
   history: string[]; // history 是一個包含 string 的陣列
 }
-
-initializeApp(firebaseConfig);
 
 export function setUserData(userId: string, email: string | null): void {
   const db = getDatabase();

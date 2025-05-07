@@ -7,13 +7,9 @@ import { useSelector, useDispatch } from "react-redux";
 import { updateModalOpen } from "../features/modalOpenSlice.ts";
 import { updateLogin } from "../features/loginSlice.ts";
 import { updateHistoryList } from "../features/historyListSlice.ts";
-import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-import { initializeApp } from "firebase/app";
-import { firebaseConfig } from "../ultils/firebase.ts";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import { useEffect } from "react";
-
-initializeApp(firebaseConfig);
-const auth = getAuth();
+import { auth } from "../utils/firebase";
 
 export default function LoginButton() {
   const modalOpen = useSelector((state: RootState) => state.modalOpen.value);
@@ -91,7 +87,7 @@ export default function LoginButton() {
     });
 
     return () => unsubscribe(); // 清理監聽器
-  }, [auth]);
+  }, [dispatch, toast]);
 
   return (
     <>

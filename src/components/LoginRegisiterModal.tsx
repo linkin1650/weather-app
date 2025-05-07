@@ -1,5 +1,7 @@
 import React from "react";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import type { RootState } from "../store.ts";
 import { useSelector, useDispatch } from "react-redux";
 import GoogleIcon from "../assets/google.svg?react";
@@ -7,24 +9,67 @@ import { useToast } from "@/hooks/useToast.ts";
 import { updateRegisterForm } from "../features/registerFormSlice.ts";
 import { updateLogin } from "../features/loginSlice.ts";
 import {
-  getAuth,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup,
 } from "firebase/auth";
-import { initializeApp } from "firebase/app";
-import { firebaseConfig } from "../ultils/firebase.ts";
 import { setUserData } from "@/api/getFirebaseData.ts";
+import { auth } from "../utils/firebase.ts";
 
-initializeApp(firebaseConfig);
-const auth = getAuth();
+// 表單驗證 schema
+const loginSchema = z.object({
+  email: z.string().email("請輸入有效的電子郵件"),
+  password: z.string().min(8, "密碼至少需要 8 個字符"),
+});
 
-type FormValues = {
-  email: string;
-  password: string;
-  confirmPassword?: string;
-};
+const registerSchema = loginSchema.extend({
+  name: z.string().min(2, "姓名至少需要 2 個字符"),
+  birthday: z.string().refine((date) => {
+    const dateFormatRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateFormatRegex.test(date)) {
+      return false;
+    }
+    const parsedDate = new Date(date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // 檢查日期是否有效
+    if (isNaN(parsedDate.getTime())) {
+      return false;
+    }
+
+    // 確保只能輸入四個字
+    const year = parsedDate.getFullYear();
+    if (year < 1000 || year > 9999) {
+      return false;
+    }
+    
+    // 檢查是否超過今天的日期
+    if (parsedDate > today) {
+      return false;
+    }
+    
+    // 檢查是否是一個合理的日期（例如：不是 13 月 32 日）
+    const inputMonth = parsedDate.getMonth();
+    const inputDate = parsedDate.getDate();
+    const recreatedDate = new Date(parsedDate);
+    recreatedDate.setMonth(inputMonth);
+    recreatedDate.setDate(inputDate);
+    
+    return recreatedDate.getMonth() === inputMonth && recreatedDate.getDate() === inputDate;
+  }, {
+    message: "請輸入有效的生日",
+  }),
+  confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "密碼不一致",
+  path: ["confirmPassword"],
+});
+
+type LoginFormValues = z.infer<typeof loginSchema>;
+type RegisterFormValues = z.infer<typeof registerSchema>;
+type FormValues = LoginFormValues & Partial<Omit<RegisterFormValues, keyof LoginFormValues>>;
 
 interface ModalProps {
   onClose: () => void;
@@ -35,103 +80,153 @@ export const LoginRegisterModal: React.FC<ModalProps> = ({ onClose }) => {
     (state: RootState) => state.registerForm.value
   );
   const dispatch = useDispatch();
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    watch,
-  } = useForm<FormValues>();
   const { toast } = useToast();
-  const password = watch("password"); // 監視密碼欄位，以便確認密碼比對
   const provider = new GoogleAuthProvider();
 
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm<FormValues>({
+    resolver: zodResolver(registerForm ? registerSchema : loginSchema),
+    mode: "onBlur",
+    defaultValues: {
+      email: "",
+      password: "",
+      name: "",
+      birthday: "",
+      confirmPassword: "",
+    }
+  });
+
   //firebase google 登入功能
-  const handleGoogleSignIn = () => {
-    signInWithPopup(auth, provider)
-      .then((result) => {
-        const user = result.user;
-        const { uid, email } = user;
-        setUserData(uid, email);
+  const handleGoogleSignIn = async () => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const { uid, email } = result.user;
+      await setUserData(uid, email);
+      dispatch(updateLogin(true));
+      toast({
+        description: "Google 登入成功！",
+      });
+      onClose();
+    } catch (error) {
+      const errorMessage = (error as Error).message;
+      toast({
+        description: `登入失敗：${errorMessage}`,
+      });
+    }
+  };
+
+  const onSubmit = async (data: FormValues) => {
+    try {
+      if (registerForm) {
+        const userCredential = await createUserWithEmailAndPassword(
+          auth,
+          data.email,
+          data.password
+        );
+        const { uid } = userCredential.user;
+        await setUserData(uid, data.email);
+        const idToken = await userCredential.user.getIdToken();
+        localStorage.setItem("token", idToken);
         dispatch(updateLogin(true));
         toast({
-          description: "Signed in with Google successfully!",
+          description: "註冊成功！",
         });
-        onClose();
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
+      } else {
+        await signInWithEmailAndPassword(auth, data.email, data.password);
+        dispatch(updateLogin(true));
         toast({
-          description: `Whoops...Failed to sign in with Google. errorcode: ${errorCode}, errormessage: ${errorMessage}`,
+          description: "登入成功！",
         });
+      }
+      console.log(data);
+      reset();
+      onClose();
+    } catch (error) {
+      const errorMessage = (error as Error).message;
+      toast({
+        description: `操作失敗：${errorMessage}`,
       });
-  };
-
-  const onSubmit: SubmitHandler<FormValues> = async (data) => {
-    const { email, password } = data;
-
-    //用 registerFrom 狀態區分表格 onSubmit
-    if (registerForm) {
-      //firebase註冊功能
-      createUserWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-          const user = userCredential.user;
-          // 將 uid 和 email 存進 database
-          setUserData(user.uid, email);
-          // 將 token 存進 localstorage
-          user.getIdToken().then((idToken) => {
-            localStorage.setItem("token", idToken);
-          });
-          dispatch(updateLogin(true));
-          toast({
-            description: "Signup successfully!",
-          });
-        })
-        .catch((error) => {
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          toast({
-            description: `Whoops...something wrong! errorcode: ${errorCode}, errormessage: ${errorMessage}`,
-          });
-        });
-    } else {
-      //firebase登入功能
-      signInWithEmailAndPassword(auth, email, password)
-        .then(() => {
-          dispatch(updateLogin(true));
-          toast({
-            description: "Login successfully!",
-          });
-        })
-        .catch((error) => {
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          toast({
-            description: `Whoops...something wrong! errorcode: ${errorCode}, errormessage: ${errorMessage}`,
-          });
-        });
     }
-
-    onClose();
   };
+
+  // 輸入欄位的通用樣式
+  const inputClassName = "block w-full p-2 mt-1 border rounded-md";
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-white/25 backdrop-blur-sm z-50">
       <div className="w-72 lg:w-96 h-auto p-6 mx-8 bg-white/60 rounded-lg shadow-lg">
         <h2 className="text-xl font-bold text-center mb-4">
-          {registerForm ? "Sign up" : "Sign in"}
+          {registerForm ? "註冊" : "登入"}
         </h2>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {registerForm && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                姓名
+              </label>
+              <Controller
+                name="name"
+                control={control}
+                render={({ field }) => (
+                  <input
+                    type="text"
+                    {...field}
+                    className={inputClassName}
+                    placeholder="請輸入姓名"
+                  />
+                )}
+              />
+              {errors.name && (
+                <p className="text-red-500 text-sm">{errors.name.message}</p>
+              )}
+            </div>
+          )}
+
+          {registerForm && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                生日
+              </label>
+              <Controller
+                name="birthday"
+                control={control}
+                render={({ field }) => (
+                  <input
+                    type="date"
+                    {...field}
+                    className={inputClassName}
+                    max={new Date().toISOString().split('T')[0]} // 限制最大日期為今天
+                    min="1900-01-01" // 限制最小年份
+                    pattern="\d{4}-\d{2}-\d{2}" // 使用 YYYY-MM-DD 格式
+                  />
+                )}
+              />
+              {errors.birthday && (
+                <p className="text-red-500 text-sm">{errors.birthday.message}</p>
+              )}
+            </div>
+          )}
+
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              Email Address
+              電子郵件
             </label>
-            <input
-              type="email"
-              {...register("email", { required: "please enter email" })}
-              className="block w-full p-2 mt-1 border rounded-md"
-              placeholder="example@email.com"
+            <Controller
+              name="email"
+              control={control}
+              render={({ field }) => (
+                <input
+                  type="email"
+                  {...field}
+                  className={inputClassName}
+                  placeholder="example@email.com"
+                />
+              )}
             />
             {errors.email && (
               <p className="text-red-500 text-sm">{errors.email.message}</p>
@@ -140,13 +235,19 @@ export const LoginRegisterModal: React.FC<ModalProps> = ({ onClose }) => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              Password
+              密碼
             </label>
-            <input
-              type="password"
-              {...register("password", { required: "Please enter password" })}
-              className="block w-full p-2 mt-1 border rounded-md"
-              placeholder="••••••••"
+            <Controller
+              name="password"
+              control={control}
+              render={({ field }) => (
+                <input
+                  type="password"
+                  {...field}
+                  className={inputClassName}
+                  placeholder="••••••••"
+                />
+              )}
             />
             {errors.password && (
               <p className="text-red-500 text-sm">{errors.password.message}</p>
@@ -156,18 +257,19 @@ export const LoginRegisterModal: React.FC<ModalProps> = ({ onClose }) => {
           {registerForm && (
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Confirm Password
+                確認密碼
               </label>
-              <input
-                type="password"
-                {...register("confirmPassword", {
-                  required: "Please confirm your password",
-                  // 驗證密碼一致性
-                  validate: (value) =>
-                    value === password || "The passwords do not match",
-                })}
-                className="block w-full p-2 mt-1 border rounded-md"
-                placeholder="••••••••"
+              <Controller
+                name="confirmPassword"
+                control={control}
+                render={({ field }) => (
+                  <input
+                    type="password"
+                    {...field}
+                    className={inputClassName}
+                    placeholder="••••••••"
+                  />
+                )}
               />
               {errors.confirmPassword && (
                 <p className="text-red-500 text-sm">
@@ -179,32 +281,35 @@ export const LoginRegisterModal: React.FC<ModalProps> = ({ onClose }) => {
 
           <button
             type="submit"
-            className="w-full text-white py-2 rounded-md bg-gray-900 hover:bg-gray-800 transition"
+            disabled={isSubmitting}
+            className="w-full text-white py-2 rounded-md bg-gray-900 hover:bg-gray-800 transition disabled:opacity-50"
           >
-            {registerForm ? "Sign up" : "Sign in"}
+            {isSubmitting ? "處理中..." : (registerForm ? "註冊" : "登入")}
           </button>
         </form>
 
         <div className="text-center mt-4">
-          <p className="text-sm text-gray-700 mb-2"></p>
           <button
             onClick={handleGoogleSignIn}
             className="flex items-center justify-center w-full py-2 border border-gray-300 rounded-md hover:bg-gray-100 transition"
           >
             <GoogleIcon className="w-5 h-5 mr-2" />
             <span className="text-gray-700 font-medium">
-              Sign in with Google
+              使用 Google 登入
             </span>
           </button>
         </div>
 
         <p className="text-sm text-center mt-4">
-          {registerForm ? "Already have an account?" : "Don't have an account?"}
+          {registerForm ? "已有帳號？" : "還沒有帳號？"}
           <button
-            onClick={() => dispatch(updateRegisterForm(!registerForm))}
+            onClick={() => {
+              reset();
+              dispatch(updateRegisterForm(!registerForm));
+            }}
             className="text-gray-900 hover:text-gray-600 ml-1"
           >
-            {registerForm ? "Sign in" : "Sign up"}
+            {registerForm ? "登入" : "註冊"}
           </button>
         </p>
 
